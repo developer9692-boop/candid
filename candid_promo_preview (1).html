@@ -1,0 +1,480 @@
+<style>
+  .candid-root{
+    --purple:#8B5CF6;
+    --purple-deep:#6D28D9;
+    --pink:#EC4899;
+    --pink-light:#F9A8D4;
+    --bg-deep:#150826;
+    --bg-deep2:#2b0f3f;
+    --card:#1f0e33;
+    --card-line:rgba(255,255,255,0.12);
+    --text-hi:#F5F0FF;
+    --text-lo:#C9B8E8;
+    font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+    padding:24px 0 8px;
+    color:var(--text-hi);
+  }
+  .candid-root *{box-sizing:border-box;}
+  .phone-frame{
+    position:relative;
+    width:min(340px,86vw);
+    aspect-ratio:9/16;
+    border-radius:46px;
+    padding:14px;
+    background:linear-gradient(155deg,#0d0518,#1a0a2e);
+    box-shadow:0 0 0 2px rgba(255,255,255,0.06), 0 30px 80px -20px rgba(139,92,246,0.55), 0 0 60px -10px rgba(236,72,153,0.35);
+    overflow:hidden;
+  }
+  .phone-frame::before{
+    content:"";
+    position:absolute; top:8px; left:50%; transform:translateX(-50%);
+    width:36%; height:22px; background:#0a0412; border-radius:0 0 16px 16px; z-index:30;
+  }
+  .screen{
+    position:relative;
+    width:100%; height:100%;
+    border-radius:32px;
+    overflow:hidden;
+    background:radial-gradient(120% 100% at 50% 0%, var(--bg-deep2), var(--bg-deep) 70%);
+  }
+  .orb{
+    position:absolute; border-radius:50%; filter:blur(30px); opacity:.55; z-index:1;
+    animation:floatOrb 9s ease-in-out infinite;
+  }
+  .orb.o1{width:160px;height:160px;background:var(--purple);top:-40px;left:-40px;}
+  .orb.o2{width:140px;height:140px;background:var(--pink);bottom:-30px;right:-30px;animation-delay:-3s;}
+  .orb.o3{width:100px;height:100px;background:var(--purple-deep);top:40%;right:-20px;animation-delay:-6s;}
+  @keyframes floatOrb{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(14px,-18px) scale(1.15);}
+  }
+  .scenes{position:absolute; inset:0; z-index:2;}
+  .scene{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    opacity:0; transform:scale(1.04);
+    transition:opacity .5s ease, transform 1.1s ease;
+    pointer-events:none;
+    padding:26px 18px 20px;
+  }
+  .scene.active{opacity:1; transform:scale(1); pointer-events:auto;}
+  .scene .caption-top{
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--pink-light); font-weight:600; text-align:center; margin-bottom:auto;
+    opacity:0;
+  }
+  .scene.active .caption-top{animation:riseIn .6s ease .15s forwards;}
+  .scene .caption-bottom{
+    text-align:center; font-size:20px; font-weight:700; margin-top:14px;
+    background:linear-gradient(90deg,var(--pink-light),#fff,var(--purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    opacity:0;
+  }
+  .scene.active .caption-bottom{animation:riseIn .6s ease .25s forwards;}
+  @keyframes riseIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---- HOOK SCENE ---- */
+  .hook-logo{
+    width:74px;height:74px;border-radius:22px;margin:auto auto 18px;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;color:#fff;
+    box-shadow:0 0 40px rgba(236,72,153,0.6);
+    opacity:0; transform:scale(.5) rotate(-15deg);
+  }
+  .scene.active .hook-logo{animation:logoPop .8s cubic-bezier(.2,1.4,.4,1) .1s forwards;}
+  @keyframes logoPop{to{opacity:1; transform:scale(1) rotate(0);}}
+  .hook-word{display:inline-block; opacity:0; filter:blur(6px); transform:translateY(16px);}
+  .scene.active .hook-word{animation:wordUp .55s ease forwards;}
+  .hook-line{text-align:center; font-size:26px; font-weight:800; line-height:1.35;}
+  @keyframes wordUp{to{opacity:1; filter:blur(0); transform:translateY(0);}}
+
+  /* ---- MOCK UI ---- */
+  .mock-card{
+    background:var(--card); border:1px solid var(--card-line); border-radius:18px;
+    padding:14px; margin-bottom:10px;
+  }
+  .app-topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .app-brand{font-weight:800; font-size:15px; letter-spacing:.02em;
+    background:linear-gradient(90deg,var(--pink-light),var(--purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .icon-dot{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06);
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--card-line);}
+  .avatar-mask{
+    width:34px;height:34px;border-radius:50%;flex:none;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;font-weight:700;
+  }
+  .row{display:flex;gap:10px;align-items:flex-start;}
+  .post-text{font-size:12.5px; color:var(--text-hi); line-height:1.5; margin:4px 0 10px;}
+  .post-actions{display:flex; gap:16px; font-size:11px; color:var(--text-lo);}
+  .post-actions span{display:flex; align-items:center; gap:4px;}
+  .pill{
+    display:inline-block; padding:6px 12px; border-radius:999px; font-size:11px; font-weight:600;
+    background:rgba(139,92,246,.18); color:var(--pink-light); border:1px solid rgba(236,72,153,.35);
+    margin:3px 4px 3px 0;
+  }
+  .input-pill{
+    background:rgba(255,255,255,.05); border:1px solid var(--card-line); border-radius:12px;
+    padding:11px 14px; font-size:12px; color:var(--text-lo); margin-bottom:10px;
+  }
+  .cta-btn{
+    text-align:center; padding:12px; border-radius:12px; font-weight:700; font-size:13px; color:#fff;
+    background:linear-gradient(90deg,var(--purple),var(--pink));
+    box-shadow:0 8px 24px -8px rgba(236,72,153,.7);
+  }
+  .bell-wrap{
+    width:56px;height:56px;border-radius:50%;margin:6px auto 16px;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 0 rgba(236,72,153,.6);
+    animation:bellPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes bellPulse{
+    0%{box-shadow:0 0 0 0 rgba(236,72,153,.55);}
+    70%{box-shadow:0 0 0 16px rgba(236,72,153,0);}
+    100%{box-shadow:0 0 0 0 rgba(236,72,153,0);}
+  }
+  .notif-item{display:flex; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--card-line); font-size:11.5px; color:var(--text-lo);}
+  .notif-item:last-child{border-bottom:none;}
+  .chat-bubble{max-width:72%; padding:9px 12px; border-radius:14px; font-size:12px; margin-bottom:8px; line-height:1.4;}
+  .chat-bubble.in{background:rgba(255,255,255,.06); border:1px solid var(--card-line); align-self:flex-start;}
+  .chat-bubble.out{background:linear-gradient(90deg,var(--purple),var(--pink)); color:#fff; align-self:flex-end; margin-left:auto;}
+  .profile-avatar{
+    width:64px;height:64px;border-radius:50%;margin:4px auto 10px;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;font-weight:700;
+    box-shadow:0 0 30px rgba(139,92,246,.5);
+  }
+  .stat-row{display:flex; justify-content:center; gap:20px; margin:10px 0 14px;}
+  .stat{text-align:center;}
+  .stat b{display:block; font-size:14px;}
+  .stat span{font-size:10px; color:var(--text-lo);}
+  .icon-svg{width:14px;height:14px;}
+
+  /* end card */
+  .end-logo{
+    width:88px;height:88px;border-radius:26px;margin:auto auto 16px;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#fff;
+    animation:glowPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes glowPulse{
+    0%,100%{box-shadow:0 0 30px rgba(236,72,153,.5);}
+    50%{box-shadow:0 0 60px rgba(139,92,246,.85);}
+  }
+  .end-title{text-align:center; font-size:22px; font-weight:800; margin-bottom:8px;}
+  .end-link{
+    text-align:center; font-size:12px; padding:10px 16px; border-radius:999px; margin:10px auto 0;
+    background:rgba(255,255,255,.06); border:1px solid var(--card-line); color:var(--pink-light); font-weight:600;
+    width:fit-content;
+  }
+  .end-tag{text-align:center; font-size:11px; color:var(--text-lo); margin-top:auto;}
+
+  /* progress + controls */
+  .progress-row{display:flex; gap:4px; width:min(340px,86vw); margin-top:2px;}
+  .seg{flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,.15); overflow:hidden;}
+  .seg .fill{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--purple),var(--pink));}
+  .seg .fill.run{animation-name:fillBar; animation-timing-function:linear; animation-fill-mode:forwards;}
+  .seg .fill.done{width:100%;}
+  @keyframes fillBar{from{width:0%;} to{width:100%;}}
+  .controls{display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text-lo);}
+  .ctrl-btn{
+    background:rgba(255,255,255,.06); border:1px solid var(--card-line); color:var(--text-hi);
+    padding:7px 14px; border-radius:999px; font-size:12px; cursor:pointer; font-weight:600;
+  }
+  .ctrl-btn:hover{background:rgba(255,255,255,.12);}
+  .music-note{font-size:11px; color:var(--text-lo); display:flex; align-items:center; gap:5px;}
+</style>
+
+<div class="candid-root">
+  <div class="phone-frame">
+    <div class="screen">
+      <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+      <div class="scenes" id="scenes">
+
+        <section class="scene" data-scene="0">
+          <div class="hook-logo">C</div>
+          <div class="hook-line">
+            <span class="hook-word" style="animation-delay:.15s">Speak</span>
+            <span class="hook-word" style="animation-delay:.28s">Freely.</span><br>
+            <span class="hook-word" style="animation-delay:.42s">Stay</span>
+            <span class="hook-word" style="animation-delay:.55s">Anonymous.</span>
+          </div>
+          <div class="end-tag" style="margin-top:10px;">The future of anonymous social networking</div>
+        </section>
+
+        <section class="scene" data-scene="1">
+          <div class="caption-top">Fast • Secure • Anonymous</div>
+          <div class="mock-card" style="margin-top:8px;">
+            <div style="text-align:center; font-weight:800; font-size:16px; margin-bottom:14px;">Welcome to <span style="background:linear-gradient(90deg,var(--pink-light),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;">Candid</span></div>
+            <div class="input-pill">Anonymous ID</div>
+            <div class="input-pill">Password</div>
+            <div class="cta-btn">Enter Anonymously</div>
+          </div>
+          <div class="caption-bottom">Login Screen</div>
+        </section>
+
+        <section class="scene" data-scene="2">
+          <div class="caption-top">Real experiences, zero identity</div>
+          <div class="app-topbar" style="margin-top:6px;">
+            <span class="app-brand">Candid</span>
+            <span class="icon-dot">🔔</span>
+          </div>
+          <div class="mock-card">
+            <div class="row"><div class="avatar-mask">?</div>
+              <div>
+                <div class="post-text">Sometimes I feel like everyone has it figured out except me. Nice to say it somewhere safe.</div>
+                <div class="post-actions"><span>♥ 128</span><span>💬 24</span><span>↗ Share</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="row"><div class="avatar-mask">?</div>
+              <div>
+                <div class="post-text">Quit my job today with no backup plan. Terrified and relieved at once.</div>
+                <div class="post-actions"><span>♥ 342</span><span>💬 51</span><span>↗ Share</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="caption-bottom">Anonymous Posts</div>
+        </section>
+
+        <section class="scene" data-scene="3">
+          <div class="caption-top">Discover what's on everyone's mind</div>
+          <div class="input-pill" style="margin-top:6px;">🔍 Search confessions</div>
+          <div style="margin-bottom:10px;">
+            <span class="pill">🔥 #Confession</span>
+            <span class="pill">#Relationships</span>
+            <span class="pill">#WorkLife</span>
+          </div>
+          <div class="mock-card">
+            <div class="post-text">🔥 Trending: "I've never told anyone this, but..."</div>
+            <div class="post-actions"><span>♥ 1.2k</span><span>💬 210</span></div>
+          </div>
+          <div class="caption-bottom">Trending Confessions</div>
+        </section>
+
+        <section class="scene" data-scene="4">
+          <div class="caption-top">Conversations, kept private</div>
+          <div class="mock-card" style="display:flex; flex-direction:column; margin-top:6px;">
+            <div class="chat-bubble in">Hey, saw your post. You're not alone in this.</div>
+            <div class="chat-bubble out">Thank you, that actually means a lot right now.</div>
+            <div class="chat-bubble in">Anytime. This space is exactly for that.</div>
+          </div>
+          <div class="caption-bottom">Private Chat</div>
+        </section>
+
+        <section class="scene" data-scene="5">
+          <div class="caption-top">Stay in the loop, instantly</div>
+          <div class="bell-wrap">🔔</div>
+          <div class="mock-card">
+            <div class="notif-item">♥ Someone liked your confession</div>
+            <div class="notif-item">💬 New comment on your post</div>
+            <div class="notif-item">✨ 3 people reacted to your story</div>
+          </div>
+          <div class="caption-bottom">Real-time Notifications</div>
+        </section>
+
+        <section class="scene" data-scene="6">
+          <div class="caption-top">Your space, your identity</div>
+          <div class="profile-avatar">?</div>
+          <div style="text-align:center; font-weight:700; font-size:14px;">Anon_7743</div>
+          <div class="stat-row">
+            <div class="stat"><b>84</b><span>Posts</span></div>
+            <div class="stat"><b>2.1k</b><span>Likes</span></div>
+            <div class="stat"><b>312</b><span>Following</span></div>
+          </div>
+          <div class="cta-btn" style="margin:0 30px;">Edit Profile</div>
+          <div class="caption-bottom">Clean &amp; Fast UI</div>
+        </section>
+
+        <section class="scene" data-scene="7">
+          <div class="end-logo">C</div>
+          <div class="end-title">Join Candid Today</div>
+          <div style="text-align:center; font-size:12px; color:var(--text-lo); margin-bottom:4px;">Speak Freely. Stay Anonymous.</div>
+          <div class="end-link">candid-16ee6.web.app</div>
+          <div class="end-tag">Available now · Instagram Reels · YouTube Shorts</div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-row" id="progressRow"></div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="playPauseBtn">⏸ Pause</button>
+    <button class="ctrl-btn" id="restartBtn">⟲ Replay</button>
+    <button class="ctrl-btn" id="soundBtn">🔈 Enable sound</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var durations = [3000,5000,5000,4000,4000,3000,3000,3000];
+  var scenes = Array.prototype.slice.call(document.querySelectorAll('#scenes .scene'));
+  var row = document.getElementById('progressRow');
+  var segs = [];
+  durations.forEach(function(){
+    var seg = document.createElement('div');
+    seg.className = 'seg';
+    var fill = document.createElement('span');
+    fill.className = 'fill';
+    seg.appendChild(fill);
+    row.appendChild(seg);
+    segs.push(fill);
+  });
+
+  var idx = 0, timer = null, paused = false;
+  var soundOn = false, audioCtx = null, musicTimer = null, musicMaster = null;
+
+  // voiceover lines describing which screen is showing — captions on screen are untouched
+  var voiceLines = [
+    "Speak your mind freely, and stay completely anonymous.",
+    "This is the login screen. Fast, secure, and anonymous.",
+    "This is the home feed, showing anonymous posts.",
+    "This is the explore page, showing trending confessions.",
+    "This is private chat, for real time messaging.",
+    "This is real time notifications.",
+    "This is your profile screen.",
+    "Join Candid today, and start speaking freely."
+  ];
+
+  function initAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+  }
+
+  function stopMusic(){
+    if(musicTimer){ clearInterval(musicTimer); musicTimer = null; }
+    if(musicMaster){ try{ musicMaster.disconnect(); }catch(e){} musicMaster = null; }
+  }
+
+  function startMusic(){
+    initAudio();
+    stopMusic();
+    var notes = [220.00, 261.63, 329.63, 392.00, 329.63, 261.63]; // A3 C4 E4 G4 E4 C4
+    var step = 0;
+    musicMaster = audioCtx.createGain();
+    musicMaster.gain.value = 0.05;
+    musicMaster.connect(audioCtx.destination);
+
+    function playNote(freq, time, dur, type, vol){
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(vol, time + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+      osc.connect(gain);
+      gain.connect(musicMaster);
+      osc.start(time);
+      osc.stop(time + dur + 0.05);
+    }
+
+    function tick(){
+      var now = audioCtx.currentTime;
+      playNote(notes[step % notes.length], now, 0.5, 'sine', 0.6);
+      playNote(notes[step % notes.length] / 2, now, 0.9, 'triangle', 0.4);
+      step++;
+    }
+    tick();
+    musicTimer = setInterval(tick, 380);
+  }
+
+  function estimateRate(text, durationMs){
+    var words = text.trim().split(/\s+/).length;
+    var naturalSeconds = words / 2.6;          // ~156 wpm at rate 1
+    var targetSeconds = (durationMs / 1000) * 0.88; // leave a small buffer before scene ends
+    var rate = naturalSeconds / targetSeconds;
+    if(rate < 0.75) rate = 0.75;
+    if(rate > 1.35) rate = 1.35;
+    return rate;
+  }
+
+  function speakScene(i){
+    if(!soundOn || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(voiceLines[i]);
+    u.rate = estimateRate(voiceLines[i], durations[i]);
+    u.pitch = 1;
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  }
+
+  function showScene(i){
+    scenes.forEach(function(s,j){ s.classList.toggle('active', j===i); });
+    segs.forEach(function(f,j){
+      f.classList.remove('run','done');
+      f.style.animation = 'none';
+      f.style.width = j < i ? '100%' : '0%';
+    });
+    // trigger reflow then animate current segment
+    void segs[i].offsetWidth;
+    segs[i].style.animation = '';
+    segs[i].style.animationDuration = durations[i] + 'ms';
+    segs[i].classList.add('run');
+    speakScene(i);
+  }
+
+  function schedule(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      idx = (idx + 1) % scenes.length;
+      showScene(idx);
+      schedule();
+    }, durations[idx]);
+  }
+
+  showScene(idx);
+  schedule();
+
+  document.getElementById('playPauseBtn').addEventListener('click', function(){
+    paused = !paused;
+    if(paused){
+      clearTimeout(timer);
+      segs[idx].style.animationPlayState = 'paused';
+      this.textContent = '▶ Play';
+    } else {
+      segs[idx].style.animationPlayState = 'running';
+      this.textContent = '⏸ Pause';
+      var remaining = durations[idx];
+      timer = setTimeout(function(){
+        idx = (idx + 1) % scenes.length;
+        showScene(idx);
+        schedule();
+      }, remaining);
+    }
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', function(){
+    idx = 0;
+    paused = false;
+    document.getElementById('playPauseBtn').textContent = '⏸ Pause';
+    showScene(idx);
+    schedule();
+  });
+
+  document.getElementById('soundBtn').addEventListener('click', function(){
+    soundOn = !soundOn;
+    if(soundOn){
+      initAudio();
+      startMusic();
+      speakScene(idx);
+      this.textContent = '🔊 Sound on';
+    } else {
+      stopMusic();
+      if('speechSynthesis' in window){ window.speechSynthesis.cancel(); }
+      this.textContent = '🔈 Enable sound';
+    }
+  });
+})();
+</script>
